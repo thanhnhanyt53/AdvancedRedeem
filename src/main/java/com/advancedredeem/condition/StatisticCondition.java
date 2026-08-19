@@ -3,6 +3,8 @@ package com.advancedredeem.condition;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+
 public final class StatisticCondition
         implements RedeemCondition {
 
@@ -17,8 +19,15 @@ public final class StatisticCondition
     ) {
         this.id = id;
         this.statistic = statistic;
-        this.required =
-                Math.max(0, required);
+        this.required = Math.max(0, required);
+    }
+
+    public Statistic statistic() {
+        return statistic;
+    }
+
+    public int required() {
+        return required;
     }
 
     @Override
@@ -35,5 +44,17 @@ public final class StatisticCondition
     @Override
     public String description() {
         return id + " >= " + required;
+    }
+
+    @Override
+    public Map<String, Object> serialize() {
+        return Map.of(
+                "type",
+                type(),
+                "statistic",
+                statistic.name(),
+                "value",
+                required
+        );
     }
 }
