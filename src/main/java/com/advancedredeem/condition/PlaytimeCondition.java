@@ -3,6 +3,8 @@ package com.advancedredeem.condition;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+
 public final class PlaytimeCondition
         implements RedeemCondition {
 
@@ -10,6 +12,10 @@ public final class PlaytimeCondition
 
     public PlaytimeCondition(long seconds) {
         this.seconds = Math.max(0L, seconds);
+    }
+
+    public long seconds() {
+        return seconds;
     }
 
     @Override
@@ -31,5 +37,15 @@ public final class PlaytimeCondition
     @Override
     public String description() {
         return "Playtime >= " + seconds + " seconds";
+    }
+
+    @Override
+    public Map<String, Object> serialize() {
+        return Map.of(
+                "type",
+                type(),
+                "seconds",
+                seconds
+        );
     }
 }
