@@ -11,27 +11,22 @@ public final class MenuSessionManager {
             > sessions =
             new ConcurrentHashMap<>();
 
-    public void open(
-            MenuSession session
-    ) {
-
+    public void open(MenuSession session) {
         sessions.put(
                 session.player(),
                 session
         );
     }
 
-    public MenuSession get(
-            UUID player
-    ) {
-
-        return sessions.get(player);
+    public MenuSession get(UUID uuid) {
+        return sessions.get(uuid);
     }
 
-    public void close(
-            UUID player
-    ) {
+    public void close(UUID uuid) {
+        sessions.remove(uuid);
+    }
 
-        sessions.remove(player);
+    public void clear() {
+        sessions.clear();
     }
 }
