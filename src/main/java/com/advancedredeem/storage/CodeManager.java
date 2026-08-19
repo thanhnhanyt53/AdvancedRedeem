@@ -36,59 +36,58 @@ public final class CodeManager {
 
     public synchronized void load() {
 
-        codes.clear();
-        dirty.clear();
+    codes.clear();
+    dirty.clear();
 
-        if (!file.exists()) {
-            return;
+    if (!file.exists()) {
+        return;
+    }
+
+    YamlConfiguration yaml =
+            YamlConfiguration.loadConfiguration(file);
+
+    ConfigurationSection root =
+            yaml.getConfigurationSection("codes");
+
+    if (root == null) {
+        return;
+    }
+
+    for (String key :
+            root.getKeys(false)) {
+
+        ConfigurationSection section =
+                root.getConfigurationSection(key);
+
+        if (section == null) {
+            continue;
         }
 
-        YamlConfiguration yaml =
-                YamlConfiguration.loadConfiguration(
-                        file
-                );
-
-        ConfigurationSection root =
-                yaml.getConfigurationSection(
-                        "codes"
-                );
-
-        if (root == null) {
-            return;
-        }
-
-        for (String key :
-                root.getKeys(false)) {
-
-            ConfigurationSection section =
-                    root.getConfigurationSection(key);
-
-            if (section == null) {
-                continue;
-            }
+        try {
 
             RedeemCode code =
-                    new RedeemCode(key);
+                    CodeSerializer.deserialize(
+                            plugin,
+                            key,
+                            section.getValues(false)
+                    );
 
-            code.setExpiresAt(
-                    section.getLong(
-                            "expires-at"
-                    )
+            codes.put(
+                    normalize(key),
+                    code
             );
 
-            code.setMaxUses(
-                    section.getInt(
-                            "max-uses"
-                    )
-            );
+        } catch (Exception exception) {
 
-            code.setMaxUsesPerPlayer(
-                    section.getInt(
-                            "max-uses-per-player",
-                            1
-                    )
+            plugin.getLogger().severe(
+                    "Could not load redeem code "
+                            + key
+                            + ": "
+                            + exception.getMessage()
             );
-
+        }
+    }
+}
             restoreUses(
                     code,
                     section
