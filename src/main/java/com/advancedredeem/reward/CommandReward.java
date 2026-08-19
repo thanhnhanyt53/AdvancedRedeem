@@ -3,14 +3,14 @@ package com.advancedredeem.reward;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-public final class CommandReward
-        implements Reward {
+import java.util.Map;
+
+public final class CommandReward implements Reward {
 
     private final String command;
 
     public CommandReward(String command) {
-        if (command == null ||
-                command.isBlank()) {
+        if (command == null || command.isBlank()) {
             throw new IllegalArgumentException(
                     "Command cannot be empty"
             );
@@ -31,20 +31,30 @@ public final class CommandReward
     @Override
     public boolean give(Player player) {
 
-        String parsed = command
-                .replace(
-                        "%player%",
-                        player.getName()
-                )
-                .replace(
-                        "%uuid%",
-                        player.getUniqueId()
-                                .toString()
-                );
+        String parsed =
+                command
+                        .replace(
+                                "%player%",
+                                player.getName()
+                        )
+                        .replace(
+                                "%uuid%",
+                                player.getUniqueId().toString()
+                        );
 
         return Bukkit.dispatchCommand(
                 Bukkit.getConsoleSender(),
                 parsed
+        );
+    }
+
+    @Override
+    public Map<String, Object> serialize() {
+        return Map.of(
+                "type",
+                type(),
+                "command",
+                command
         );
     }
 }
