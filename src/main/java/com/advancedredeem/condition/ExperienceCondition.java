@@ -2,6 +2,8 @@ package com.advancedredeem.condition;
 
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+
 public final class ExperienceCondition
         implements RedeemCondition {
 
@@ -9,6 +11,10 @@ public final class ExperienceCondition
 
     public ExperienceCondition(int required) {
         this.required = Math.max(0, required);
+    }
+
+    public int required() {
+        return required;
     }
 
     @Override
@@ -25,5 +31,15 @@ public final class ExperienceCondition
     @Override
     public String description() {
         return "Experience >= " + required;
+    }
+
+    @Override
+    public Map<String, Object> serialize() {
+        return Map.of(
+                "type",
+                type(),
+                "value",
+                required
+        );
     }
 }
