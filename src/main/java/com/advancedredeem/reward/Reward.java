@@ -2,14 +2,15 @@ package com.advancedredeem.reward;
 
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+
 public interface Reward {
 
     String type();
 
-    /**
-     * Gives the reward.
-     *
-     * @return true if successfully processed
-     */
     boolean give(Player player);
+
+    default Map<String, Object> serialize() {
+        return Map.of();
+    }
 }
