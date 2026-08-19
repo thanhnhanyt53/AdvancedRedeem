@@ -90,7 +90,8 @@ public final class RedeemGui {
                         "&bĐiều kiện",
                         "&7Đang có: &f"
                                 + code.getConditions().size()
-                );
+                   )
+        );
 
         inventory.setItem(
                 49,
