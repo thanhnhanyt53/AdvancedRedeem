@@ -5,20 +5,22 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 
-public final class ItemReward
-        implements Reward {
+public final class ItemReward implements Reward {
 
     private final ItemStack item;
 
     public ItemReward(ItemStack item) {
-        if (item == null ||
-                item.getType().isAir()) {
+        if (item == null || item.getType().isAir()) {
             throw new IllegalArgumentException(
-                    "Invalid item"
+                    "Invalid reward item"
             );
         }
 
         this.item = item.clone();
+    }
+
+    public ItemStack item() {
+        return item.clone();
     }
 
     @Override
@@ -35,22 +37,31 @@ public final class ItemReward
                 player.getInventory()
                         .addItem(reward);
 
-        if (!leftovers.isEmpty()) {
+        /*
+         * Never silently destroy a reward.
+         *
+         * If inventory is full, drop the remaining
+         * stack at the player's location.
+         */
+        for (ItemStack leftover :
+                leftovers.values()) {
 
-            leftovers.values().forEach(
-                    leftover ->
-                            player.getWorld()
-                                    .dropItemNaturally(
-                                            player.getLocation(),
-                                            leftover
-                                    )
+            player.getWorld().dropItemNaturally(
+                    player.getLocation(),
+                    leftover
             );
         }
 
         return true;
     }
 
-    public ItemStack item() {
-        return item.clone();
+    @Override
+    public Map<String, Object> serialize() {
+        return Map.of(
+                "type",
+                type(),
+                "item",
+                item.clone()
+        );
     }
 }
