@@ -10,11 +10,8 @@ public final class RedeemCode {
     private final String code;
 
     private volatile long expiresAt;
-
     private volatile int maxUses;
-
-    private int totalUses;
-
+    private volatile int totalUses;
     private volatile int maxUsesPerPlayer;
 
     private final Map<UUID, Integer> playerUses =
@@ -28,12 +25,11 @@ public final class RedeemCode {
 
     public RedeemCode(String code) {
         if (code == null || code.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Code cannot be empty"
-            );
+            throw new IllegalArgumentException("Code cannot be empty");
         }
 
         this.code = code;
+        this.maxUsesPerPlayer = 1;
     }
 
     public String getCode() {
@@ -64,11 +60,8 @@ public final class RedeemCode {
         return maxUsesPerPlayer;
     }
 
-    public void setMaxUsesPerPlayer(
-            int maxUsesPerPlayer
-    ) {
-        this.maxUsesPerPlayer =
-                Math.max(0, maxUsesPerPlayer);
+    public void setMaxUsesPerPlayer(int value) {
+        this.maxUsesPerPlayer = Math.max(0, value);
     }
 
     public Map<UUID, Integer> getPlayerUses() {
@@ -85,8 +78,7 @@ public final class RedeemCode {
 
     public boolean isExpired() {
         return expiresAt > 0L
-                && System.currentTimeMillis()
-                >= expiresAt;
+                && System.currentTimeMillis() >= expiresAt;
     }
 
     public boolean hasUsesLeft() {
@@ -95,21 +87,14 @@ public final class RedeemCode {
     }
 
     public int getPlayerUses(UUID uuid) {
-        return playerUses.getOrDefault(
-                uuid,
-                0
-        );
+        return playerUses.getOrDefault(uuid, 0);
     }
 
     public boolean canPlayerRedeem(UUID uuid) {
         return maxUsesPerPlayer <= 0
-                || getPlayerUses(uuid)
-                < maxUsesPerPlayer;
+                || getPlayerUses(uuid) < maxUsesPerPlayer;
     }
 
-    /**
-     * Must only be called while the code is locked.
-     */
     public void registerUse(UUID uuid) {
         totalUses++;
 
@@ -120,19 +105,13 @@ public final class RedeemCode {
         );
     }
 
-    /**
-     * Must only be called while the code is locked.
-     */
     public void rollbackUse(UUID uuid) {
         if (totalUses > 0) {
             totalUses--;
         }
 
         int current =
-                playerUses.getOrDefault(
-                        uuid,
-                        0
-                );
+                playerUses.getOrDefault(uuid, 0);
 
         if (current <= 1) {
             playerUses.remove(uuid);
@@ -142,5 +121,25 @@ public final class RedeemCode {
                     current - 1
             );
         }
+    }
+
+    public void restoreTotalUses(int value) {
+        this.totalUses = Math.max(0, value);
+    }
+
+    public RedeemCode copy() {
+        RedeemCode copy =
+                new RedeemCode(code);
+
+        copy.expiresAt = expiresAt;
+        copy.maxUses = maxUses;
+        copy.totalUses = totalUses;
+        copy.maxUsesPerPlayer = maxUsesPerPlayer;
+
+        copy.playerUses.putAll(playerUses);
+        copy.rewards.addAll(rewards);
+        copy.conditions.addAll(conditions);
+
+        return copy;
     }
 }
